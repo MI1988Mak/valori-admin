@@ -1,0 +1,77 @@
+# <!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <title>VALORI Live-Wert setzen</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 2rem;
+      max-width: 600px;
+      margin: auto;
+    }
+    label, input, button {
+      display: block;
+      width: 100%;
+      margin-bottom: 1rem;
+      font-size: 1rem;
+    }
+    input, button {
+      padding: 0.5rem;
+    }
+    #response {
+      white-space: pre-wrap;
+      background: #f4f4f4;
+      padding: 1rem;
+      border: 1px solid #ddd;
+    }
+  </style>
+</head>
+<body>
+  <h2>VALORI Live-Wert aktualisieren</h2>
+
+  <form id="liveForm">
+    <label for="key">Datenpfad (key):</label>
+    <input type="text" id="key" name="key" placeholder="z. B. etf.msci_world.10y_return" required />
+
+    <label for="value">Wert:</label>
+    <input type="text" id="value" name="value" placeholder="z. B. 7.1" required />
+
+    <button type="submit">Senden</button>
+  </form>
+
+  <h3>Antwort:</h3>
+  <pre id="response">Noch nichts gesendet.</pre>
+
+  <script>
+    const form = document.getElementById("liveForm");
+    const responseText = document.getElementById("response");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const key = document.getElementById("key").value;
+      const value = parseFloat(document.getElementById("value").value);
+      const auth = "valori123";
+
+      try {
+        const res = await fetch(
+          `https://valori-datahub-live.onrender.com/valori/liveupdate?auth=${auth}`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
+            body: JSON.stringify({ key, value }),
+          }
+        );
+
+        const data = await res.json();
+        responseText.textContent = JSON.stringify(data, null, 2);
+      } catch (error) {
+        responseText.textContent = "Fehler beim Senden: " + error;
+      }
+    });
+  </script>
+</body>
+</html>
